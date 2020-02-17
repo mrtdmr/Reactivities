@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -45,7 +44,7 @@ namespace API.Middleware
                 case Exception e:
                     _logger.LogError(ex, "SERVER ERROR");
                     errors = string.IsNullOrWhiteSpace(e.Message) ? "Error" : e.Message;
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     break;
                 default:
                     break;
