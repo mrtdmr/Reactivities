@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Persistence;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -51,7 +52,7 @@ namespace Application.User
                         DisplayName = user.DisplayName,
                         Token = _jwtGenerator.GenerateToken(user),
                         UserName = user.UserName,
-                        Image = null
+                        Image = user.Photos.FirstOrDefault(x=>x.IsMain)?.Url
                     };
                 }
                 throw new RestException(System.Net.HttpStatusCode.Unauthorized);
