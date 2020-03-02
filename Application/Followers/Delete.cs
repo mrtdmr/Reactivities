@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Application.Followers
 {
-    public class Add
+    public class Delete
     {
         public class Command : IRequest
         {
@@ -36,17 +36,12 @@ namespace Application.Followers
                 if (target == null)
                     throw new RestException(HttpStatusCode.NotFound, new { User = "Not found" });
                 var following = await _context.Followings.SingleOrDefaultAsync(x => x.ObserverId == observer.Id && x.TargetId == target.Id);
-                if(following!=null)
-                    throw new RestException(HttpStatusCode.BadRequest, new { User = "You are already following this user" });
                 if (following == null)
+                    throw new RestException(HttpStatusCode.BadRequest, new { User = "You are not following this user" });
+                if (following != null)
                 {
-                    following = new UserFollowing
-                    {
-                        Observer = observer,
-                        Target = target
-                    };
+                    _context.Followings.Remove(following);
                 }
-                _context.Followings.Add(following);
                 var success = await _context.SaveChangesAsync() > 0;
                 if (success) return Unit.Value;
                 throw new Exception("Problem saving changes");
