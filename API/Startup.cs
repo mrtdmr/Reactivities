@@ -38,6 +38,26 @@ namespace API
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureDevelopmentServices(IServiceCollection services)
+        {
+            string connString = Configuration["ConnectionStrings:DefaultConnection"];
+            services.AddDbContext<DataContext>(opt =>
+            {
+                opt.UseLazyLoadingProxies();
+                opt.UseSqlServer(connString);
+            });
+            ConfigureServices(services);
+        }
+        public void ConfigureProductionServices(IServiceCollection services)
+        {
+            string connString = Configuration["ConnectionStrings:DefaultConnection"];
+            services.AddDbContext<DataContext>(opt =>
+            {
+                opt.UseLazyLoadingProxies();
+                opt.UseSqlServer(connString);
+            });
+            ConfigureServices(services);
+        }
         public void ConfigureServices(IServiceCollection services)
         {
             string connString = Configuration["ConnectionStrings:DefaultConnection"];
@@ -120,6 +140,19 @@ namespace API
             {
                 //app.UseDeveloperExceptionPage();
             }
+            app.UseXContentTypeOptions();
+            app.UseReferrerPolicy(opt => opt.NoReferrer());
+            app.UseXXssProtection(opt => opt.EnabledWithBlockMode());
+            app.UseXfo(opt => opt.Deny());
+            app.UseCsp(opt => opt
+                .BlockAllMixedContent()
+                .StyleSources(s => s.Self().CustomSources("https://fonts.googleapis.com", "sha256-F4GpCPyRepgP5znjMD8sc7PEjzet5Eef4r09dEGPpTs="))
+                .FontSources(s => s.Self().CustomSources("https://fonts.gstatic.com","data:"))
+                .FormActions(s => s.Self())
+                .FrameAncestors(s => s.Self())
+                .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com","blob:","data:"))
+                .ScriptSources(s => s.Self().CustomSources("sha256-dBbhpy7d9Nv2G4aNMrbZMK4YAJlzykCJRRxrTJrImlg="))
+            );
             //app.UseHttpsRedirection();
             app.UseDefaultFiles();
             app.UseStaticFiles();
